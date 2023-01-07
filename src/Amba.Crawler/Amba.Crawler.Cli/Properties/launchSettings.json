@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Amba.Crawler.Cli": {
+      "commandName": "Project",
+        "commandLineArgs": "--url https://musuk.guru --output \"C:\\tmp\\crawler-test\" ",
+        "environmentVariables": {
+        
+      }
+    }
+  }
+}
