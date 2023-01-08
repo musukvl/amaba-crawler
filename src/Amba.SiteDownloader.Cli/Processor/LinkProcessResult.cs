@@ -9,4 +9,5 @@ public class LinkProcessResult
     public bool Error { get; set; }
     public HttpStatusCode ErrorCode { get; set; }
     public string? ErrorMessage { get; set; }
+    public string SavedFilePath { get; set; }
 }

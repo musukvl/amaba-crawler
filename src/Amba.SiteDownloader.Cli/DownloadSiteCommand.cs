@@ -1,4 +1,6 @@
 using Amba.SiteDownloader.Cli.Common;
+using Amba.SiteDownloader.Cli.Processor;
+using Amba.SiteDownloader.Cli.SiteWriter;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,6 +38,8 @@ class DownloadSiteCommand
             clientConfig.BaseAddress = new Uri(uri.AbsoluteUri);
         });
         services.AddSingleton<SiteDownloadManager>();
-        services.AddSingleton<SiteWriter>(new SiteWriter(Output));
+        services.AddSingleton(new MediaWritingService(Output));
+        services.AddSingleton(new HtmlWritingService(Output));
+        services.AddTransient<LinkProcessor>();
     }
 }

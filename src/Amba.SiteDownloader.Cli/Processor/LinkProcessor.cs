@@ -1,5 +1,6 @@
 using Amba.SiteDownloader.Cli.Common;
 using Amba.SiteDownloader.Cli.Model;
+using Amba.SiteDownloader.Cli.SiteWriter;
 using HtmlAgilityPack;
 using Serilog;
 
@@ -8,15 +9,17 @@ namespace Amba.SiteDownloader.Cli.Processor;
 public class LinkProcessor
 {
     private readonly WebClient _webClient;
-    private readonly SiteWriter _siteWriter;
+    private readonly MediaWritingService _mediaWritingService;
+    private readonly HtmlWritingService _htmlWritingService;
 
-    public LinkProcessor(WebClient webClient, SiteWriter siteWriter)
+    public LinkProcessor(WebClient webClient, MediaWritingService mediaWritingService, HtmlWritingService htmlWritingService)
     {
         _webClient = webClient;
-        _siteWriter = siteWriter;
+        _mediaWritingService = mediaWritingService;
+        _htmlWritingService = htmlWritingService;
     }
 
-    public async Task<LinkProcessResult> Process(Link link, SiteDownloadContext context)
+    public async Task<LinkProcessResult> Process(Link link)
     {
         var response = await _webClient.HttpClient.GetAsync(link.Path);
         if (!response.IsSuccessStatusCode)
@@ -30,17 +33,17 @@ public class LinkProcessor
             await using var stream = await response.Content.ReadAsStreamAsync();
             
             Log.Information("Downloaded {contentType}: {url}", response.Content.Headers.ContentType.ToString(), link.Path);
-            await _siteWriter.SaveMediaStream(stream, response.Content.Headers.ContentType.MediaType, link.Path);
+            var saveMediaResult = await _mediaWritingService.SaveMediaStream(stream, response.Content.Headers.ContentType.MediaType, link.Path);
             
-            return new LinkProcessResult() { Error = false };
+            return new LinkProcessResult { Error = false, SavedFilePath = saveMediaResult.FilePath };
         }
         
         
         var html = await _webClient.DownloadPage(link.Path);
         Log.Information("Downloaded HTML: {url}", link.Path);
         
-        await _siteWriter.SaveHtml(html, link.Path);
-        var result = new LinkProcessResult();
+        var saveHtmlResult = await _htmlWritingService.SaveHtml(html, link.Path);
+        var result = new LinkProcessResult{ SavedFilePath = saveHtmlResult.FilePath};
         result.ChildLinks = ExtractLinks(html);
         return result;
     }

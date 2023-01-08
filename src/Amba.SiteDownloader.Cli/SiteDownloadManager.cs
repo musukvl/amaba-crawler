@@ -1,24 +1,22 @@
 using Amba.SiteDownloader.Cli.Common;
 using Amba.SiteDownloader.Cli.Model;
 using Amba.SiteDownloader.Cli.Processor;
+using Amba.SiteDownloader.Cli.SiteWriter;
 using Serilog;
 
 namespace Amba.SiteDownloader.Cli;
 
 public class SiteDownloadManager
 {
-    private readonly WebClient _webClient;
-    private readonly SiteWriter _siteWriter;
+    private readonly LinkProcessor _linkProcessor;
 
-    public SiteDownloadManager(WebClient webClient, SiteWriter siteWriter)
+    public SiteDownloadManager(WebClient webClient, LinkProcessor linkProcessor)
     {
-        _webClient = webClient;
-        _siteWriter = siteWriter;
+        _linkProcessor = linkProcessor; 
     } 
     
     public async Task DownloadSite(string startUrl, int maxDepth = 3)
     {
-        var linkProcessor = new LinkProcessor(_webClient, _siteWriter);
         var uri = new Uri(startUrl);
         var root = new Link{Path = uri.PathAndQuery};
         
@@ -29,8 +27,11 @@ public class SiteDownloadManager
         {
             if (context.ParsingQueue.TryDequeue(out var link))
             {
-                var processResult = await linkProcessor.Process(link, context);
-                context.Enqueue(processResult.ChildLinks);
+                var processResult = await _linkProcessor.Process(link);
+                if (processResult.ChildLinks.Any())
+                {
+                    context.Enqueue(processResult.ChildLinks);
+                }
             }
         } while (!context.ParsingQueue.IsEmpty);
         
