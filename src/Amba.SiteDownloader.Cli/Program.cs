@@ -18,8 +18,7 @@ public static class Program
         Log.Information("Start initializing...");
         
         var services = new ServiceCollection();
- 
-
+        
         var serviceProvider = services.BuildServiceProvider();
 
         var app = new CommandLineApplication<DownloadSiteCommand>();

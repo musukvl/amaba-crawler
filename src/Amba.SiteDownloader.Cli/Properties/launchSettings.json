@@ -3,7 +3,7 @@
   "profiles": {
     "Amba.SiteDownloader.Cli": {
       "commandName": "Project",
-        "commandLineArgs": "--url https://musuk.guru --output \"C:\\tmp\\crawler-test\" ",
+        "commandLineArgs": "--url https://musuk.guru --output \"C:\\tmp\\musuk.guru\" ",
         "environmentVariables": {
         
       }

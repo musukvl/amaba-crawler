@@ -30,7 +30,7 @@ public class LinkProcessor
             await using var stream = await response.Content.ReadAsStreamAsync();
             
             Log.Information("Downloaded {contentType}: {url}", response.Content.Headers.ContentType.ToString(), link.Path);
-            await _siteWriter.SaveStream(stream, response.Content.Headers.ContentType.MediaType, link.Path);
+            await _siteWriter.SaveMediaStream(stream, response.Content.Headers.ContentType.MediaType, link.Path);
             
             return new LinkProcessResult() { Error = false };
         }

@@ -1,4 +1,3 @@
-using HtmlAgilityPack;
 using Serilog;
 
 namespace Amba.SiteDownloader.Cli;
@@ -16,15 +15,44 @@ public class SiteWriter
         }
     }
     
- 
-    public async Task SaveStream(Stream stream, string? contentTypeMediaType, string linkPath)
+    public async Task SaveMediaStream(Stream stream, string? contentTypeMediaType, string linkPath)
     {
-        Log.Information("Skip Saving {LinkPath}", linkPath);
+        linkPath = linkPath.Trim('/');
+        var fileName = GetMediaFileName(linkPath);
+        var relativePath = Path.GetDirectoryName(linkPath);
+        var directoryPath = Path.Combine(_outputDirectory, relativePath);
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+        var destinationPath = Path.Combine(directoryPath, fileName);
+        Log.Information("Saving {LinkPath}", linkPath);
+        await using (StreamWriter streamWriter = new StreamWriter(destinationPath))
+        {
+            await stream.CopyToAsync(streamWriter.BaseStream);
+        }
+    }
+
+    private string GetMediaFileName(string linkPath)
+    {
+        if (linkPath == null)
+        {
+            throw new ArgumentNullException(nameof(linkPath));
+        }
+
+        if (linkPath.Contains("?"))
+        {
+            linkPath = linkPath.Substring(0, linkPath.IndexOf("?"));
+        }
+
+        linkPath = linkPath.Trim();
+        var fileName = Path.GetFileName(linkPath);
+        return fileName;
     }
 
     public async Task SaveHtml(string html, string linkPath)
     {
-        var relativeDirectory = GetDirectoryName(linkPath);
+        var relativeDirectory = GetHtmlDestinationDirectoryName(linkPath);
         var directory = Path.Combine(_outputDirectory, relativeDirectory);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
         {
@@ -55,7 +83,7 @@ public class SiteWriter
         return "index.html";
     }
 
-    private string GetDirectoryName(string linkPath)
+    private string GetHtmlDestinationDirectoryName(string linkPath)
     {
         var result = linkPath;
         if (linkPath.Contains("?"))
@@ -64,6 +92,5 @@ public class SiteWriter
         }
         result = result.Trim('/', ' ');        
         return result;
-
     }
 }
