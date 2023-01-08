@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
-namespace Amba.Crawler.Cli;
+namespace Amba.SiteDownloader.Cli;
 
 public static class Program
 {

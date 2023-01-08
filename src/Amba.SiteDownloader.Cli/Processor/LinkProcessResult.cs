@@ -1,7 +1,7 @@
-using Amba.Crawler.Cli.Model;
+using Amba.SiteDownloader.Cli.Model;
 using System.Net;
 
-namespace Amba.Crawler.Cli.Processor;
+namespace Amba.SiteDownloader.Cli.Processor;
 
 public class LinkProcessResult
 {

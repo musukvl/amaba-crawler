@@ -1,4 +1,4 @@
-namespace Amba.Crawler.Cli.Model;
+namespace Amba.SiteDownloader.Cli.Model;
 
 public enum LinkType 
 {

@@ -1,8 +1,8 @@
-using Amba.Crawler.Cli.Common;
+using Amba.SiteDownloader.Cli.Common;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Amba.Crawler.Cli;
+namespace Amba.SiteDownloader.Cli;
 
 class DownloadSiteCommand
 {
@@ -21,7 +21,7 @@ class DownloadSiteCommand
         ConfigureServices(services);
         var provider = services.BuildServiceProvider();
 
-        await using var scope = provider.CreateAsyncScope();
+        await using var scope = provider.CreateAsyncScope(); 
         var crawlService = scope.ServiceProvider.GetService<SiteDownloadManager>();
         
         await crawlService.DownloadSite(Url);
@@ -36,5 +36,6 @@ class DownloadSiteCommand
             clientConfig.BaseAddress = new Uri(uri.AbsoluteUri);
         });
         services.AddSingleton<SiteDownloadManager>();
+        services.AddSingleton<SiteWriter>(new SiteWriter(Output));
     }
 }

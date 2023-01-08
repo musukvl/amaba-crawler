@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amba.Crawler.Cli", "Amba.Crawler.Cli\Amba.Crawler.Cli.csproj", "{CD86BD91-04F7-46AF-ACB4-912FE1BD39F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amba.SiteDownloader.Cli", "Amba.SiteDownloader.Cli\Amba.SiteDownloader.Cli.csproj", "{CD86BD91-04F7-46AF-ACB4-912FE1BD39F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

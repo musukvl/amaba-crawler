@@ -1,18 +1,19 @@
-using Amba.Crawler.Cli.Common;
-using Amba.Crawler.Cli.Model;
+using Amba.SiteDownloader.Cli.Common;
+using Amba.SiteDownloader.Cli.Model;
 using HtmlAgilityPack;
 using Serilog;
 
-namespace Amba.Crawler.Cli.Processor;
+namespace Amba.SiteDownloader.Cli.Processor;
 
 public class LinkProcessor
 {
     private readonly WebClient _webClient;
+    private readonly SiteWriter _siteWriter;
 
-    public LinkProcessor(WebClient webClient)
+    public LinkProcessor(WebClient webClient, SiteWriter siteWriter)
     {
         _webClient = webClient;
-
+        _siteWriter = siteWriter;
     }
 
     public async Task<LinkProcessResult> Process(Link link, SiteDownloadContext context)
@@ -23,19 +24,23 @@ public class LinkProcessor
             return new LinkProcessResult() { Error = true, ErrorCode = response.StatusCode, ErrorMessage = response.ReasonPhrase };
         }
 
-        if (response.Content.Headers.ContentType.MediaType != "text/html")
+        var mediaType = response.Content.Headers.ContentType.MediaType;
+        if (mediaType != "text/html")
         {
-            var stream = await response.Content.ReadAsStreamAsync();
-            //TODO: save file
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            
             Log.Information("Downloaded {contentType}: {url}", response.Content.Headers.ContentType.ToString(), link.Path);
+            await _siteWriter.SaveStream(stream, response.Content.Headers.ContentType.MediaType, link.Path);
+            
             return new LinkProcessResult() { Error = false };
         }
-
+        
+        
         var html = await _webClient.DownloadPage(link.Path);
         Log.Information("Downloaded HTML: {url}", link.Path);
-
+        
+        await _siteWriter.SaveHtml(html, link.Path);
         var result = new LinkProcessResult();
-
         result.ChildLinks = ExtractLinks(html);
         return result;
     }
@@ -44,9 +49,8 @@ public class LinkProcessor
     {
         HtmlDocument doc = new();
         doc.LoadHtml(html);
-
         doc.OptionEmptyCollection = true;
-
+        
         var links = new List<Link>();
         // extract pages
         foreach (var aNode in doc.DocumentNode.SelectNodes("//a"))

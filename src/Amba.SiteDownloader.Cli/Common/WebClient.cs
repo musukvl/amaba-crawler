@@ -1,4 +1,4 @@
-namespace Amba.Crawler.Cli.Common;
+namespace Amba.SiteDownloader.Cli.Common;
 
 public class WebClient
 {

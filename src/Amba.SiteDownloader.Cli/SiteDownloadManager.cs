@@ -1,28 +1,25 @@
-using Amba.Crawler.Cli.Common;
-using Amba.Crawler.Cli.Model;
-using Amba.Crawler.Cli.Processor;
+using Amba.SiteDownloader.Cli.Common;
+using Amba.SiteDownloader.Cli.Model;
+using Amba.SiteDownloader.Cli.Processor;
 using Serilog;
 
-namespace Amba.Crawler.Cli;
+namespace Amba.SiteDownloader.Cli;
 
 public class SiteDownloadManager
 {
     private readonly WebClient _webClient;
+    private readonly SiteWriter _siteWriter;
 
-    public SiteDownloadManager(WebClient webClient)
+    public SiteDownloadManager(WebClient webClient, SiteWriter siteWriter)
     {
-        _webClient = webClient; 
+        _webClient = webClient;
+        _siteWriter = siteWriter;
     } 
     
     public async Task DownloadSite(string startUrl, int maxDepth = 3)
     {
+        var linkProcessor = new LinkProcessor(_webClient, _siteWriter);
         var uri = new Uri(startUrl);
-        var absoluteUri = uri.AbsoluteUri;
-        
-        var httpClient = new HttpClient();
-        httpClient.BaseAddress = new Uri(absoluteUri);
-        
-        var linkProcessor = new LinkProcessor(_webClient);
         var root = new Link{Path = uri.PathAndQuery};
         
         var context = new SiteDownloadContext();

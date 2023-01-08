@@ -1,7 +1,7 @@
-using Amba.Crawler.Cli.Model;
+using Amba.SiteDownloader.Cli.Model;
 using System.Collections.Concurrent;
 
-namespace Amba.Crawler.Cli;
+namespace Amba.SiteDownloader.Cli;
 
 public class SiteDownloadContext
 {
