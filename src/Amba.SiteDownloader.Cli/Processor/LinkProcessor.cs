@@ -3,6 +3,7 @@ using Amba.SiteDownloader.Cli.Model;
 using Amba.SiteDownloader.Cli.SiteWriter;
 using HtmlAgilityPack;
 using Serilog;
+using System.Text.RegularExpressions;
 
 namespace Amba.SiteDownloader.Cli.Processor;
 
@@ -41,13 +42,17 @@ public class LinkProcessor
         
         var html = await _webClient.DownloadPage(link.Path);
         Log.Information("Downloaded HTML: {url}", link.Path);
-        
+
         var saveHtmlResult = await _htmlWritingService.SaveHtml(html, link.Path);
         var result = new LinkProcessResult{ SavedFilePath = saveHtmlResult.FilePath};
         result.ChildLinks = ExtractLinks(html);
         return result;
     }
 
+    
+    
+    private Regex _rmdiUrlRegex = new Regex(@"url\(""([^""]+)""\);", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private Regex _rmdiImageCacheRegex = new Regex(@"\(new Image\(\)\).src = ""([^""]+)"";", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private IEnumerable<Link> ExtractLinks(string html)
     {
         HtmlDocument doc = new();
@@ -83,6 +88,54 @@ public class LinkProcessor
             }
         }
 
+        foreach (var aNode in doc.DocumentNode.SelectNodes("//script"))
+        {
+            var src = aNode.GetAttributeValue("src", "");
+            if (string.IsNullOrEmpty(src))
+                continue;
+            if (src.StartsWith("/"))
+            {
+                links.Add(new Link() { Path = src, Type = LinkType.LocalScript });
+            }
+        } 
+        foreach (var aNode in doc.DocumentNode.SelectNodes("//link"))
+        {
+            var src = aNode.GetAttributeValue("href", "");
+            if (string.IsNullOrEmpty(src))
+                continue;
+            if (src.StartsWith("/"))
+            {
+                links.Add(new Link() { Path = src, Type = LinkType.LocalStyle });
+            }
+        }
+
+        // rmdi.ru specific stuff
+        var cssUrls = _rmdiUrlRegex.Matches(html);
+        if (cssUrls.Any())
+        {
+            foreach (Match urlMatch in cssUrls.Where(x => x.Success))
+            {
+                var url = urlMatch.Groups[1].Value;
+                if (url.StartsWith("/"))
+                {
+                    links.Add(new Link() { Path = url, Type = LinkType.LocalImage });
+                }
+            }
+        }
+        
+        var imageUrls = _rmdiImageCacheRegex.Matches(html);
+        if (imageUrls.Any())
+        {
+            foreach (Match imageMatch in imageUrls.Where(x => x.Success))
+            {
+                var url = imageMatch.Groups[1].Value;
+                if (url.StartsWith("/"))
+                {
+                    links.Add(new Link() { Path = url, Type = LinkType.LocalImage });
+                }
+            }
+        }
+        
         return links;
     }
 

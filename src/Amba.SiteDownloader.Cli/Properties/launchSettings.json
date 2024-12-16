@@ -1,12 +1,30 @@
 {
-  "$schema": "http://json.schemastore.org/launchsettings.json",
-  "profiles": {
-    "Amba.SiteDownloader.Cli": {
-      "commandName": "Project",
-        "commandLineArgs": "--url https://musuk.guru --output \"C:\\tmp\\musuk.guru\" ",
-        "environmentVariables": {
+    "$schema": "http://json.schemastore.org/launchsettings.json",
+    "profiles": {
+        "Amba.SiteDownloader.Cli localhost": {
+            "commandName": "Project",
+            "commandLineArgs": "--url http://localhost:5049/ --output \"C:\\temp\\uminoko.ru\" ",
+            "environmentVariables": {
+            }
+        },
         
-      }
+        "Amba.SiteDownloader.Cli musuk.guru": {
+            "commandName": "Project",
+            "commandLineArgs": "--url https://musuk.guru --output \"C:\\tmp\\musuk.guru\" ",
+            "environmentVariables": {
+            }
+        },
+        "Amba.SiteDownloader.Cli rmdi.ru": {
+            "commandName": "Project",
+            "commandLineArgs": "--url https://rmdi.ru --output \"C:\\tmp\\rmdi.ru\" ",
+            "environmentVariables": {
+            }
+        },
+        "Amba.SiteDownloader.Cli uminoko.ru": {
+            "commandName": "Project",
+            "commandLineArgs": "--url https://uminoko.ru --output \"C:\\tmp\\uminoko.ru\" ",
+            "environmentVariables": {
+            }
+        }
     }
-  }
 }

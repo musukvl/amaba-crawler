@@ -4,5 +4,7 @@ public enum LinkType
 {
     Unknown = 0,
     LocalPage = 1,
-    LocalImage = 2
+    LocalImage = 2,
+    LocalScript,
+    LocalStyle
 }
