@@ -26,5 +26,4 @@ public class SavedLink
 {
     public string Link { get; set; }
     public string FilePath { get; set; }
-    
 }
